@@ -16,12 +16,14 @@ data Options = Options
 	{ oUserName :: String
 	, oPassWord :: String
 	, oServer :: String
+	, oResource :: String
 	} deriving (Eq, Show)
 
 defaultOptions = Options
 	{ oUserName = ""
 	, oPassWord = ""
 	, oServer = ""
+	, oResource = "hsendxmpp"
 	}
 
 options :: [OptDescr (Options -> Options)]
@@ -29,6 +31,7 @@ options =
 	[ Option ['u']	["username"]	(ReqArg	(\str o -> o { oUserName = str }) "user")	"Use this username to authenticate to the server"
 	, Option ['p']	["password"]	(ReqArg	(\str o -> o { oPassWord = str }) "password") $	"Use this password to authenticate to the server.\nThe password can also be provided via " ++ passWordEnvVar ++ " environment variable to avoid it leaking into process lists, and it will override the CLI option contents."
 	, Option ['j']	["jserver"]	(ReqArg	(\str o -> o { oServer = str }) "server")	"Connect to this server"
+	, Option ['r']	["resource"]	(ReqArg	(\str o -> o { oResource = str }) "res")	"Use resource res for the sender [default: 'hsendxmpp']"
 	]
 
 getOpts :: IO (Options, [String])
@@ -47,7 +50,8 @@ main = do
 	let justEnvPassWord = fromMaybe "" envPassWord
 	let passWord = if null justEnvPassWord then oPassWord opts else justEnvPassWord
 
-	eSess <- session (oServer opts) (simpleAuth (S.toText $ oUserName opts) (S.toText passWord)) def
+	let authData = Just (fst $ fromJust (simpleAuth (S.toText $ oUserName opts) (S.toText passWord)), if null $ oResource opts then Nothing else Just $ S.toText $ oResource opts) :: AuthData
+	eSess <- session (oServer opts) authData def
 	let sess = either (error . show) id $ eSess
 	sendPresence presenceOnline sess
 	mapM_ (\tjid -> sendMessage ((simpleIM (parseJid tjid) $ S.toText text) { messageType = Chat }) sess >> pure ()) recipients
