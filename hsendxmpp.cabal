@@ -12,7 +12,6 @@ maintainer:          zl29ah@gmail.com
 -- copyright:
 category:            Network
 build-type:          Simple
-extra-source-files:  CHANGELOG.md
 cabal-version:       >=1.10
 
 executable hsendxmpp
