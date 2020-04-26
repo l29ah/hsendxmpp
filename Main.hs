@@ -37,7 +37,7 @@ getOpts = do
 	pn <- getProgName
 	case getOpt Permute options args of
 		(o,n,[]  ) -> return (foldl (flip id) defaultOptions o, n)
-		(_,_,errs) -> ioError (userError (concat errs ++ usageInfo ("Usage: " ++ pn ++ " <recipient>") options))
+		(_,_,errs) -> ioError (userError (concat errs ++ usageInfo ("Usage: " ++ pn ++ " [options] <recipient1> [<recipient2> ...]") options))
 
 main :: IO ()
 main = do
