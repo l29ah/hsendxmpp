@@ -1,0 +1,7 @@
+.cabal-sandbox
+cabal.sandbox.config
+dist/
+cabal-dev/
+*.o
+*.hi
+*.sw?
