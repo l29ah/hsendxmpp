@@ -2,12 +2,15 @@
 
 module Main where
 
+import Control.Monad
 import Data.Maybe
 import qualified Data.String.Class as S
 import Network.Xmpp
 import Network.Xmpp.Internal hiding (priority, status)
+import Network.Xmpp.Extras.MUC
 import System.Console.GetOpt
 import System.Environment
+import System.Log.Logger
 
 
 passWordEnvVar = "HSENDXMPP_PASSWORD"
@@ -17,6 +20,8 @@ data Options = Options
 	, oPassWord :: String
 	, oServer :: String
 	, oResource :: String
+	, oMessageType :: MessageType
+	, oVerbose :: Bool
 	} deriving (Eq, Show)
 
 defaultOptions = Options
@@ -24,6 +29,8 @@ defaultOptions = Options
 	, oPassWord = ""
 	, oServer = ""
 	, oResource = "hsendxmpp"
+	, oMessageType = Chat
+	, oVerbose = False
 	}
 
 options :: [OptDescr (Options -> Options)]
@@ -32,6 +39,8 @@ options =
 	, Option ['p']	["password"]	(ReqArg	(\str o -> o { oPassWord = str }) "password") $	"Use this password to authenticate to the server.\nThe password can also be provided via " ++ passWordEnvVar ++ " environment variable to avoid it leaking into process lists, and it will override the CLI option contents."
 	, Option ['j']	["jserver"]	(ReqArg	(\str o -> o { oServer = str }) "server")	"Connect to this server"
 	, Option ['r']	["resource"]	(ReqArg	(\str o -> o { oResource = str }) "res")	"Use resource res for the sender [default: 'hsendxmpp']"
+	, Option ['c']	["chatroom"]	(NoArg	(\o -> o { oMessageType = GroupChat }))		"Send the message to a chatroom (MUC)"
+	, Option ['v']	["verbose"]	(NoArg	(\o -> o { oVerbose = True }))			"Be verbose on what's happening on the wire"
 	]
 
 getOpts :: IO (Options, [String])
@@ -45,6 +54,7 @@ getOpts = do
 main :: IO ()
 main = do
 	(opts, recipients) <- getOpts
+	when (oVerbose opts) $ updateGlobalLogger "Pontarius.Xmpp" $ setLevel DEBUG
 	text <- getContents
 	envPassWord <- lookupEnv passWordEnvVar
 	let justEnvPassWord = fromMaybe "" envPassWord
@@ -54,4 +64,10 @@ main = do
 	eSess <- session (oServer opts) authData def
 	let sess = either (error . show) id $ eSess
 	sendPresence presenceOnline sess
-	mapM_ (\tjid -> sendMessage ((simpleIM (parseJid tjid) $ S.toText text) { messageType = Chat }) sess >> pure ()) recipients
+	mapM_ (\tjid -> do
+		let parsedJid = parseJid tjid
+		when (oMessageType opts == GroupChat) $ do
+			let (roomName, roomServer, _) = jidToTexts parsedJid
+			let roomJid = fromJust $ jidFromTexts roomName roomServer $ Just $ S.toText $ oResource opts
+			joinMUC roomJid Nothing sess >> pure ()
+		sendMessage ((simpleIM parsedJid $ S.toText text) { messageType = oMessageType opts }) sess >> pure ()) recipients
