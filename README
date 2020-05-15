@@ -1,1 +1,12 @@
 sendxmpp is dead and rotting. I've decided to rewrite it in Haskell.
+
+CLI usage help snapshot:
+
+Usage: hsendxmpp [options] <recipient1> [<recipient2> ...]
+  -u user      --username=user      Use this username to authenticate to the server
+  -p password  --password=password  Use this password to authenticate to the server.
+                                    The password can also be provided via HSENDXMPP_PASSWORD environment variable to avoid it leaking into process lists, and it will override the CLI option contents.
+  -j server    --jserver=server     Connect to this server
+  -r res       --resource=res       Use resource res for the sender [default: 'hsendxmpp']
+  -c           --chatroom           Send the message to a chatroom (MUC)
+  -v           --verbose            Be verbose on what's happening on the wire
