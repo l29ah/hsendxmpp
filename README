@@ -1,4 +1,5 @@
 sendxmpp is dead and rotting. I've decided to rewrite it in Haskell.
+It aims to be a drop-in replacement regarding the CLI flags. It is user-friendlier, handles errors better and, unlike sendxmpp, it supports modern authentication and encryption schemes.
 
 CLI usage help snapshot:
 
