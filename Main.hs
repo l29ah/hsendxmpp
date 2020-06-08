@@ -71,3 +71,5 @@ main = do
 			let roomJid = fromJust $ jidFromTexts roomName roomServer $ Just $ S.toText $ oResource opts
 			joinMUC roomJid Nothing sess >> pure ()
 		sendMessage ((simpleIM parsedJid $ S.toText text) { messageType = oMessageType opts }) sess >> pure ()) recipients
+	sendPresence presenceOffline sess
+	endSession sess

@@ -1,5 +1,5 @@
 name:                hsendxmpp
-version:             0.1.2.1
+version:             0.1.2.2
 synopsis:            sendxmpp clone, sending XMPP messages via CLI
 -- description:
 license:             OtherLicense
@@ -18,7 +18,7 @@ Source-repository head
 Source-repository this
   type:              git
   location:          https://github.com/l29ah/hsendxmpp.git
-  tag:               0.1.2.1
+  tag:               0.1.2.2
 
 executable hsendxmpp
   main-is:             Main.hs
