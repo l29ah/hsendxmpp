@@ -22,12 +22,12 @@ Source-repository this
 
 executable hsendxmpp
   main-is:             Main.hs
-  ghc-options:        -fno-warn-tabs
+  ghc-options:         -W -fno-warn-tabs
   -- other-modules:
   -- other-extensions:
   build-depends:       base >=4.9 && <4.15,
                        pontarius-xmpp >= 0.4.5 && < 0.6,
-                       pontarius-xmpp-extras >= 0.1.0.1 && < 0.2,
+                       pontarius-xmpp-extras >= 0.1.0.6 && < 0.2,
                        hslogger >= 1.2.8 && < 1.4,
                        string-class >= 0.1.7.0 && < 0.2
   -- hs-source-dirs:

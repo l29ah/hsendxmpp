@@ -65,11 +65,13 @@ main = do
 	let sess = either (error . show) id $ eSess
 	sendPresence presenceOnline sess
 	mapM_ (\tjid -> do
-		let parsedJid = parseJid tjid
-		when (oMessageType opts == GroupChat) $ do
-			let (roomName, roomServer, _) = jidToTexts parsedJid
-			let roomJid = fromJust $ jidFromTexts roomName roomServer $ Just $ S.toText $ oResource opts
-			joinMUC roomJid Nothing sess >> pure ()
-		sendMessage ((simpleIM parsedJid $ S.toText text) { messageType = oMessageType opts }) sess >> pure ()) recipients
+			let parsedJid = parseJid tjid
+			when (oMessageType opts == GroupChat) $ do
+				let (roomName, roomServer, _) = jidToTexts parsedJid
+				let roomJid = fromJust $ jidFromTexts roomName roomServer $ Just $ S.toText $ oResource opts
+				result <- joinMUCResult roomJid Nothing sess
+				either (\err -> print $ stanzaErrorText err) (const $ pure ()) result
+			sendMessage ((simpleIM parsedJid $ S.toText text) { messageType = oMessageType opts }) sess >> pure ()
+		) recipients
 	sendPresence presenceOffline sess
 	endSession sess
