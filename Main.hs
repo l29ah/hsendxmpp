@@ -70,7 +70,7 @@ main = do
 				let (roomName, roomServer, _) = jidToTexts parsedJid
 				let roomJid = fromJust $ jidFromTexts roomName roomServer $ Just $ S.toText $ oResource opts
 				result <- joinMUCResult roomJid Nothing sess
-				either (\err -> print $ stanzaErrorText err) (const $ pure ()) result
+				either (\err -> error $ show $ stanzaErrorText err) (const $ pure ()) result
 			sendMessage ((simpleIM parsedJid $ S.toText text) { messageType = oMessageType opts }) sess >> pure ()
 		) recipients
 	sendPresence presenceOffline sess
