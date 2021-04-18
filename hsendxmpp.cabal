@@ -1,9 +1,9 @@
-cabal-version:       3.0
+cabal-version:       3.4
 name:                hsendxmpp
 version:             0.1.2.5
 synopsis:            sendxmpp clone, sending XMPP messages via CLI
 description:         It aims to be a drop-in replacement regarding the CLI flags. It is user-friendlier, handles errors better and, unlike sendxmpp, it supports modern authentication and encryption schemes.
-license:             WTFPL
+license:             AGPL-3.0-only
 license-file:        LICENSE
 author:              Sergey Alirzaev
 maintainer:          zl29ah@gmail.com
