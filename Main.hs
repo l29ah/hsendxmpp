@@ -5,6 +5,7 @@ module Main where
 import Control.Monad
 import Data.Maybe
 import qualified Data.String.Class as S
+import qualified Data.Text.IO as T
 import Network.Xmpp
 import Network.Xmpp.Internal hiding (priority, status)
 import Network.Xmpp.Extras.MUC
@@ -55,7 +56,7 @@ main :: IO ()
 main = do
 	(opts, recipients) <- getOpts
 	when (oVerbose opts) $ updateGlobalLogger "Pontarius.Xmpp" $ setLevel DEBUG
-	text <- getContents
+	text <- T.getContents
 	envPassWord <- lookupEnv passWordEnvVar
 	let justEnvPassWord = fromMaybe "" envPassWord
 	let passWord = if null justEnvPassWord then oPassWord opts else justEnvPassWord
@@ -71,7 +72,7 @@ main = do
 				let roomJid = fromJust $ jidFromTexts roomName roomServer $ Just $ S.toText $ oResource opts
 				result <- joinMUCResult roomJid Nothing sess
 				either (\err -> error $ show $ stanzaErrorText err) (const $ pure ()) result
-			result <- sendMessage ((simpleIM parsedJid $ S.toText text) { messageType = oMessageType opts }) sess
+			result <- sendMessage ((simpleIM parsedJid text) { messageType = oMessageType opts }) sess
 			either (\err -> error $ show err) pure result
 		) recipients
 	sendPresence presenceOffline sess
