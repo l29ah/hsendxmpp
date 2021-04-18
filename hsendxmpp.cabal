@@ -1,4 +1,4 @@
-cabal-version:       3.4
+cabal-version:       3.0
 name:                hsendxmpp
 version:             0.1.2.5
 synopsis:            sendxmpp clone, sending XMPP messages via CLI
