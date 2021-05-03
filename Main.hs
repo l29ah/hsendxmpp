@@ -2,6 +2,7 @@
 
 module Main where
 
+import Control.Concurrent
 import Control.Monad
 import Data.Maybe
 import qualified Data.String.Class as S
@@ -76,4 +77,6 @@ main = do
 			either (\err -> error $ show err) pure result
 		) recipients
 	sendPresence presenceOffline sess
+	-- FIXME a workaround for https://github.com/l29ah/hsendxmpp/issues/1
+	threadDelay 1000000
 	endSession sess
