@@ -7,6 +7,7 @@ import Control.Monad
 import Data.Maybe
 import qualified Data.String.Class as S
 import qualified Data.Text.IO as T
+import Network.TLS
 import Network.Xmpp
 import Network.Xmpp.Internal hiding (priority, status)
 import Network.Xmpp.Extras.MUC
@@ -24,6 +25,7 @@ data Options = Options
 	, oResource :: String
 	, oMessageType :: MessageType
 	, oVerbose :: Bool
+	, oNoTLSVerify :: Bool
 	} deriving (Eq, Show)
 
 defaultOptions = Options
@@ -33,6 +35,7 @@ defaultOptions = Options
 	, oResource = "hsendxmpp"
 	, oMessageType = Chat
 	, oVerbose = False
+	, oNoTLSVerify = False
 	}
 
 options :: [OptDescr (Options -> Options)]
@@ -43,6 +46,7 @@ options =
 	, Option ['r']	["resource"]	(ReqArg	(\str o -> o { oResource = str }) "res")	"Use resource res for the sender [default: 'hsendxmpp']"
 	, Option ['c']	["chatroom"]	(NoArg	(\o -> o { oMessageType = GroupChat }))		"Send the message to a chatroom (MUC)"
 	, Option ['v']	["verbose"]	(NoArg	(\o -> o { oVerbose = True }))			"Be verbose on what's happening on the wire"
+	, Option ['n']	["no-tls-verify"]	(NoArg	(\o -> o { oNoTLSVerify = True }))	"Accept TLS certificates without verification"
 	]
 
 getOpts :: IO (Options, [String])
@@ -63,7 +67,10 @@ main = do
 	let passWord = if null justEnvPassWord then oPassWord opts else justEnvPassWord
 
 	let authData = Just (fst $ fromJust (simpleAuth (S.toText $ oUserName opts) (S.toText passWord)), if null $ oResource opts then Nothing else Just $ S.toText $ oResource opts) :: AuthData
-	eSess <- session (oServer opts) authData def
+	let sessionConfiguration = if oNoTLSVerify opts
+		then def { sessionStreamConfiguration = def { tlsParams = xmppDefaultParams { clientHooks = def { onServerCertificate = \_ _ _ _ -> pure [] } } } }
+		else def
+	eSess <- session (oServer opts) authData sessionConfiguration
 	let sess = either (error . show) id $ eSess
 	sendPresence presenceOnline sess
 	mapM_ (\tjid -> do
