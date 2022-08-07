@@ -22,7 +22,7 @@ Source-repository this
 
 executable hsendxmpp
   main-is:             Main.hs
-  ghc-options:         -W -fno-warn-tabs
+  ghc-options:         -W -Wcompat -fno-warn-tabs
   -- other-modules:
   -- other-extensions:
   build-depends:       base >= 4.9 && < 5,
