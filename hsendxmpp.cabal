@@ -8,7 +8,7 @@ license-file:        LICENSE
 author:              Sergey Alirzaev
 maintainer:          zl29ah@gmail.com
 -- copyright:
-category:            Network
+category:            Network, CLI, XMPP
 build-type:          Simple
 
 Source-repository head
