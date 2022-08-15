@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings, Strict #-}
 
 module Main where
 
@@ -31,7 +31,7 @@ data Options = Options
 defaultOptions = Options
 	{ oUserName = ""
 	, oPassWord = ""
-	, oServer = error "no server specified"
+	, oServer = ""
 	, oResource = "hsendxmpp"
 	, oMessageType = Chat
 	, oVerbose = False
@@ -61,6 +61,7 @@ main :: IO ()
 main = do
 	(opts, recipients) <- getOpts
 	when (oVerbose opts) $ updateGlobalLogger "Pontarius.Xmpp" $ setLevel DEBUG
+	let server = if oServer opts == "" then error "no server specified" else oServer opts
 	text <- T.getContents
 	envPassWord <- lookupEnv passWordEnvVar
 	let justEnvPassWord = fromMaybe "" envPassWord
@@ -70,7 +71,7 @@ main = do
 	let sessionConfiguration = if oNoTLSVerify opts
 		then def { sessionStreamConfiguration = def { tlsParams = xmppDefaultParams { clientHooks = def { onServerCertificate = \_ _ _ _ -> pure [] } } } }
 		else def
-	eSess <- session (oServer opts) authData sessionConfiguration
+	eSess <- session server authData sessionConfiguration
 	let sess = either (error . show) id $ eSess
 	sendPresence presenceOnline sess
 	mapM_ (\tjid -> do
